@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crypto Test Game</title>
+<style>
+  body { font-family: Arial; background: #121212; color: #fff; text-align: center; padding: 20px; }
+  button { padding: 10px 20px; margin: 5px; cursor: pointer; border-radius: 5px; border: none; }
+  #game { margin-top: 20px; }
+  #walletAddress { margin-top: 10px; color: #00ff00; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+</head>
+<body>
+
+<h1>Crypto Test Game</h1>
+<button id="connectWallet">Connect Wallet</button>
+<div id="walletAddress"></div>
+
+<div id="game" style="display:none;">
+  <h2>Score: <span id="score">0</span></h2>
+  <button id="manualPlay">Manual Play (+1)</button>
+  <button id="autoPlay">Start Auto-Player</button>
+</div>
+
+<script>
+let score = 0;
+let autoPlaying = false;
+let provider;
+let signer;
+
+// Connect Metamask wallet
+document.getElementById('connectWallet').onclick = async () => {
+  if (window.ethereum) {
+    try {
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      provider = new ethers.BrowserProvider(window.ethereum);
+      signer = await provider.getSigner();
+      const address = await signer.getAddress();
+      document.getElementById('walletAddress').innerText = "Wallet: " + address;
+      document.getElementById('game').style.display = 'block';
+    } catch(err) {
+      alert("Wallet connection failed: " + err.message);
+    }
+  } else {
+    alert("Install Metamask!");
+  }
+};
+
+// Manual play
+document.getElementById('manualPlay').onclick = () => {
+  score += 1;
+  document.getElementById('score').innerText = score;
+};
+
+// Auto player
+document.getElementById('autoPlay').onclick = () => {
+  autoPlaying = !autoPlaying;
+  document.getElementById('autoPlay').innerText = autoPlaying ? "Stop Auto-Player" : "Start Auto-Player";
+  if(autoPlaying) autoPlayer();
+};
+
+function autoPlayer() {
+  if(!autoPlaying) return;
+  score += 1;
+  document.getElementById('score').innerText = score;
+  setTimeout(autoPlayer, 1000); // auto-play every 1 second
+}
+</script>
+
+</body>
+</html>
